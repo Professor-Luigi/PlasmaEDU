@@ -13,8 +13,8 @@ import bfield
 import matplotlib.pyplot as plt
 
 # Loops ( Ra,I0,Nturns, Xcenter,Ycenter,Zcenter, Ux,Uy,Uz )
-Loops = np.array([[ 0.200,100,10,  0.200,0,0, 90,0,0 ],
-                  [ 0.200,100,10, -0.200,0,0, 90,0,0 ] ])
+Loops = np.array([[ 0.200,1e2,1e1, 0,0.2,0, 0,0,0 ],
+                  [ 0.200,1e2,1e1, 0,-0.2,0, 0,0,0 ] ])
 Nloops = np.size(Loops,0)
 
 X = np.linspace( -0.4, 0.4, 100 )
@@ -41,12 +41,12 @@ plt.xlabel('X [m]')
 plt.ylabel('Y [m]')
 plt.title('B-field magnitude [T] - Helmholtz Coil')
 plt.savefig('ex07_plot_helmholtz_coil_bnorm.png',dpi=150)
-plt.show()
+#plt.show()
 
 plt.figure(2)
-plt.plot(X,Bnorm[:,0]*1e4)
+plt.plot(Y,Bnorm[0,:]*1e4)
 plt.xlabel('Axis [m]')
 plt.ylabel('B [Gauss]')
-plt.title('B-field magnitude along axis [T] - Helmholtz Coil')
+plt.title('B-field magnitude along y-axis [T] - Helmholtz Coil')
 plt.savefig('ex07_plot_helmholtz_coil_Baxis.png',dpi=150)
-plt.show()
+#plt.show()

@@ -16,12 +16,14 @@ import matplotlib.pyplot as plt
 Ra = 0.05
 I0 = 100.
 Nturns = 10
-Center = np.array([0,0,0])
-Angles = np.array([90,0,0]) * np.pi/180.0
+Center = np.array([.05,0.01,0])
+# First rotates in original xy plane, next rotates z-axis to new position, next rotates along the new z-axis
+Angles = np.array([70,0,0]) * np.pi/180.0
 
 # X,Y Grid
-X = np.linspace(-0.1, 0.1, 50 )
-Y = np.linspace(-0.1, 0.1, 50 )
+Lim =.1
+X = np.linspace(-Lim, Lim, 50 )
+Y = np.linspace(-Lim, Lim, 50 )
 
 # B-field magnitude
 Bnorm = np.zeros((X.size,Y.size))

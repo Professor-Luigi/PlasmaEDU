@@ -13,12 +13,12 @@ import matplotlib.pyplot as plt
 import bfield
 
 # Current Loop
-Ra    = 0.5 # [m] Loop Radius
-I0    = 100  # [A] Loop Current
-turns = 1    # [#] Number of turns
+Ra    = 0.03 # [m] Loop Radius
+I0    = 15000  # [A] Loop Current
+turns = 10    # [#] Number of turns
 
 # R,Z Grid
-R = np.linspace(  0.0,  Ra*2, 50 )
+R = np.linspace(  0.0,  .1, 50 )
 Z = np.linspace(-0.05, 0.05, 50 )
 
 # B-field magnitude

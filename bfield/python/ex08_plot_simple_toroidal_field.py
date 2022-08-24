@@ -41,8 +41,9 @@ for i in range(0,Ncoils):
   Loops[i,8] = Angle3
 
 # Points of interest along the midplane
-X = np.linspace( -1, 1, 50 )
-Y = np.linspace( -1, 1, 50 )
+lim = 1.3
+X = np.linspace( -lim, lim, 70 )
+Y = np.linspace( -lim, lim, 70 )
 Bnorm = np.zeros((X.size,Y.size))
 
 # Solve B-field
@@ -66,7 +67,7 @@ plt.xlabel('X [m]')
 plt.ylabel('Y [m]')
 plt.title('B-field magnitude [T] - Simple Toroidal Field')
 plt.savefig('ex08_plot_simple_toroidal_field_bnorm.png',dpi=150)
-plt.show()
+#plt.show()
 
 plt.figure(2)
 plt.plot(X,Bnorm[:,0]*1e4)
@@ -76,4 +77,4 @@ plt.xlabel('Radius [m]')
 plt.ylabel('B [Gauss]')
 plt.title('B-field magnitude along radius [T] - Simple Toroidal Field')
 plt.savefig('ex08_plot_simple_toroidal_field_baxis.png',dpi=150)
-plt.show()
+#plt.show()

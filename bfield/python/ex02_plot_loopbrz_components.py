@@ -16,7 +16,7 @@ R = np.linspace(0.001,   0.1, 50 )
 Z = np.linspace( -0.05, 0.05, 50 )
 
 loop_I0    = 10000
-loor_Ra    = 0.05
+loor_Ra    = 0.08
 loop_turns = 1
 
 BR = np.zeros((R.size,Z.size))
@@ -30,7 +30,7 @@ for i in range(0,R.size):
 
 plt.figure(1)
 RR,ZZ = np.meshgrid(R,Z)
-plt.contour(np.transpose(RR),np.transpose(ZZ),BR,30)
+plt.contour(np.transpose(RR),np.transpose(ZZ),BR,90)
 plt.colorbar()
 plt.xlabel('R [m]')
 plt.ylabel('Z [m]')
@@ -39,7 +39,7 @@ plt.savefig('ex02_plot_loopbrz_components_br.png',dpi=150)
 
 plt.figure(2)
 RR,ZZ = np.meshgrid(R,Z)
-plt.contour(np.transpose(RR),np.transpose(ZZ),BZ,30)
+plt.contour(np.transpose(RR),np.transpose(ZZ),BZ,90)
 plt.colorbar()
 plt.xlabel('R [m]')
 plt.ylabel('Z [m]')
