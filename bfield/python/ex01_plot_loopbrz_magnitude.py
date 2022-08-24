@@ -13,12 +13,12 @@ import matplotlib.pyplot as plt
 import bfield
 
 # Current Loop
-Ra    = 0.05 # [m] Loop Radius
+Ra    = 0.5 # [m] Loop Radius
 I0    = 100  # [A] Loop Current
 turns = 1    # [#] Number of turns
 
 # R,Z Grid
-R = np.linspace(  0.0,  0.1, 50 )
+R = np.linspace(  0.0,  Ra*2, 50 )
 Z = np.linspace(-0.05, 0.05, 50 )
 
 # B-field magnitude
@@ -36,7 +36,7 @@ plt.xlabel('R [m]')
 plt.ylabel('Z [m]')
 plt.title('B-field magnitude [T] of a Current Loop')
 plt.savefig('ex01_plot_loopbrz_magnitude.png',dpi=150)
-plt.show()
+# plt.show()
 
 # Note on Numpy's contourf([X, Y,] Z, [levels], **kwargs):
 # X and Y must both be 2-D with the same shape as Z

@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 # Current Loop
 Ra = 0.05
 I0 = 100.
-Nturns = 1
+Nturns = 10
 Center = np.array([0,0,0])
 Angles = np.array([90,0,0]) * np.pi/180.0
 
@@ -39,4 +39,4 @@ plt.xlabel('X [m]')
 plt.ylabel('Y [m]')
 plt.title('B-field magnitude [T] of a Current Loop')
 plt.savefig('ex03_plot_loopxyz_magnitude.png',dpi=150)
-plt.show()
+# plt.show()

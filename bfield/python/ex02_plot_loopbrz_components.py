@@ -15,7 +15,7 @@ import bfield
 R = np.linspace(0.001,   0.1, 50 )
 Z = np.linspace( -0.05, 0.05, 50 )
 
-loop_I0    = 100
+loop_I0    = 10000
 loor_Ra    = 0.05
 loop_turns = 1
 
