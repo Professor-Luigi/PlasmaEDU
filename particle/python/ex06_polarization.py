@@ -18,7 +18,7 @@ E0   = 10.0e3 # [V/m]
 freq = 1e4    # [Hz]
 
 def Efield(t,x,y,z):
-    Ex = 1e4 * np.sin(2.0*np.pi*freq * t)
+    Ex = 1e4 * np.sin(2.0*np.pi*freq * t)/(t+1e-4)
     Ey = 0.0
     Ez = 0.0
     return Ex, Ey, Ez
@@ -65,11 +65,11 @@ def main():
    X0 = np.array(( -r_L, 0.0, 0.0, 0.0, vy0, 0.0  ))
 
    # Number of Larmor gyrations
-   N_gyros = 20
+   N_gyros = 120
 
    # Time grid
    time = np.linspace( 0.0, tau_L*N_gyros, 25*N_gyros )
-
+   print(time[1])
    # Runge-Kutta 4
    X = ode.rk4( fun, time, X0 )
 
@@ -86,19 +86,20 @@ def main():
 
    # Plot 1 - Trajectory
    plt.figure(1)
+   plt.title("Trajectory")
    plt.plot( x, y, 'b-', label='RK4' )
    plt.xlabel('x [m]')
    plt.ylabel('y [m]')
-   plt.axis('equal')
    plt.legend()
    plt.savefig('ex06_polarization_trajectory.png',dpi=200)
 
    plt.figure(2)
+   plt.title('X Position')
    plt.plot( time/tau_L, x, 'b-', label='RK4' )
    plt.xlabel('time / tau_L')
    plt.ylabel('x position [m]')
    plt.savefig('ex06_polarization_position.png',dpi=200)
-
+   plt.show()
 
 if __name__ == '__main__':
    main()

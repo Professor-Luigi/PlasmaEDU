@@ -42,17 +42,18 @@ def main():
 
    # Initial conditions
    y0 = np.array(( r_L, 0.0, 0.0, 0.0, vy0, 0.0 ))
+   nSteps = 20
 
    # Euler Forward
-   time_ef = np.linspace( 0.0, tau_L, 10 )
+   time_ef = np.linspace( 0.0, tau_L, nSteps )
    y_ef = ode.euler( fun, time_ef, y0 )
 
    # Explicit Midpoint
-   time_mp = np.linspace( 0.0, tau_L, 10 )
+   time_mp = np.linspace( 0.0, tau_L, nSteps )
    y_mp = ode.midpoint( fun, time_mp, y0 )
 
    # Runge-Kutta 4
-   time_rk = np.linspace( 0.0, tau_L, 10 )
+   time_rk = np.linspace( 0.0, tau_L, nSteps )
    y_rk = ode.rk4( fun, time_rk, y0 )
 
    # Amplitude (orbit radius)

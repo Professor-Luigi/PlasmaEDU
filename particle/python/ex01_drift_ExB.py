@@ -12,7 +12,7 @@ mp = 1.6726219e-27
 def fun(t,X):
    x, y, z, vx, vy, vz = X
    # Charge-to-mass ratio (q/m)
-   qm = qe/me
+   qm = -qe/me
    # E-field [V/m]
    Ex = 0.0
    Ey = 100.0
@@ -34,7 +34,8 @@ def fun(t,X):
 
 def main():
     # Grid
-    time = np.linspace( 0.0, 1.1e-6, 100 )
+    time = np.linspace( 0.0, 1.1e-6, 50 )
+    print(time[0]-time[1])
     # Initial conditions
     X0 = np.array(( 0.0, 0.0, 0.0, 0.0, 1.0e6, 0.0 ))
     # Solve ODE

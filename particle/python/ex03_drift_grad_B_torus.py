@@ -21,7 +21,7 @@ def Efield(x,y,z):
 
 
 def Bfield(x,y,z):
-    B0 = 0.5
+    B0 = 5.5
     # Major radius (projection)
     R = np.sqrt( x*x + y*y )
     # Sin, Cos of particle position on (x,y) plane
@@ -73,10 +73,10 @@ def main():
     X0 = np.array( [ 0.72, 0.0, 0.0, 0.0, vy0, vz0 ] )
 
     # Number of Larmor gyrations
-    N_gyro = 35
+    N_gyro = 37
 
     # Number of points per gyration
-    N_points_per_gyration = 100
+    N_points_per_gyration = 70
 
     # Time grid
     time = np.linspace( 0.0, tau_L*N_gyro, N_gyro*N_points_per_gyration )
@@ -95,20 +95,22 @@ def main():
     R = np.sqrt(x*x + y*y)
 
     plt.figure(1)
+    plt.title('Particle Trajectory')
     plt.plot( x, y, 'b-', label='Runge-Kutta (4th)' )
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
     plt.axis('equal')
     plt.legend(loc=3)
-    plt.savefig('ex02_drift_grad_B_trajectory.png')
+    plt.savefig('ex03_drift_grad_B_trajectory.png')
     plt.show()
 
     plt.figure(2)
+    plt.title('Vertical Drift')
     plt.plot( R, z, 'b-')
     plt.xlabel('R, Radius [m]')
     plt.ylabel('Z, Vertical Coordinate [m]')
     plt.axis('equal')
-    plt.savefig('ex02_drift_grad_B_vertical_drift.png')
+    plt.savefig('ex03_drift_grad_B_vertical_drift.png')
     plt.show()
 
 

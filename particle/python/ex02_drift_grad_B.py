@@ -10,7 +10,7 @@ me = 9.10938356e-31
 mp = 1.6726219e-27
 
 # Charge-to-mass ratio (q/m)
-qm = qe/mp
+qm = -qe/mp
 
 
 def Efield(x,y,z):
@@ -23,7 +23,7 @@ def Efield(x,y,z):
 def Bfield(x,y,z):
     Bx = 0.0
     By = 0.0
-    Bz = 0.5*(1.0 + 50.0*x)
+    Bz = 0.5*(6.0 + 50.0*x)
     return Bx, By, Bz
 
 
@@ -100,10 +100,14 @@ def main():
 
     plt.figure(1)
     plt.plot( X[:,0], X[:,1], 'b-', label='Runge-Kutta (4th)' )
+    plt.scatter(r_L, 0,c='k', marker='o', label='Starting Point')
+    plt.annotate('', (r_L, r_L), (r_L, 0), arrowprops=dict(arrowstyle='simple'))
+    plt.text( r_L*1.2, r_L/2, r'$v_0$')
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
     plt.axis('equal')
     plt.legend(loc=3)
+    plt.title('Particle Trajectory')
     plt.savefig('ex02_drift_grad_B_trajectory.png')
     plt.show()
 
@@ -111,6 +115,7 @@ def main():
     plt.plot( time*1e6, mu )
     plt.xlabel('time [micro-seconds]')
     plt.ylabel('Magnetic Moment [eV/T]')
+    plt.title('Magnetic Moment Variations')
     plt.savefig('ex02_drift_grad_B_magnetic_moment.png')
     plt.show()
 

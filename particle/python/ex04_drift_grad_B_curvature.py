@@ -29,7 +29,7 @@ def Bfield(x,y,z):
     ca = x/R
     sa = y/R
     # Toroidal component [T]
-    Bphi = B0 * 0.72 / R
+    Bphi = B0 * 0.72 / R**2
     # B-field [T]
     Bx = -Bphi * sa
     By =  Bphi * ca
@@ -103,20 +103,22 @@ def main():
     R = np.sqrt(x*x + y*y)
 
     plt.figure(1)
+    plt.title('Trajectory')
     plt.plot( x, y, 'b-', label='Runge-Kutta (4th)' )
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
     plt.axis('equal')
     plt.legend(loc=3)
-    plt.savefig('ex02_drift_grad_B_trajectory.png')
+    plt.savefig('ex04_drift_grad_B_trajectory.png')
     plt.show()
 
     plt.figure(2)
+    plt.title('Vertical Drift')
     plt.plot( R, z, 'b-')
     plt.xlabel('R, Radius [m]')
     plt.ylabel('Z, Vertical Coordinate [m]')
     plt.axis('equal')
-    plt.savefig('ex02_drift_grad_B_vertical_drift.png')
+    plt.savefig('ex04_drift_grad_B_vertical_drift.png')
     plt.show()
 
 

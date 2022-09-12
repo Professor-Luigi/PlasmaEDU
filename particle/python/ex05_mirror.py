@@ -62,7 +62,7 @@ def fun(t,X):
 def main():
 
    # Initial velocity [m/s]
-   vy0 =  2.0e5
+   vy0 =  1#2.0e5
    vz0 = -2.56e5
 
    # B-field max [T]
@@ -152,7 +152,7 @@ def main():
    plt.plot(time*1e6, vz)
    plt.xlabel('time [micro-seconds]')
    plt.ylabel('Vz [m/s]')
-   plt.title('Velocity along the axis of the current loop')
+   plt.title('Velocity along the axis of the current loop', pad=20)
    plt.savefig('ex05_mirror_vaxial.png',dpi=150)
    plt.show()
 
