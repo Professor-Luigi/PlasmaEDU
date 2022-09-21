@@ -29,10 +29,13 @@ class Efield:
         self.Rpoints = np.size(self.r)
         self.Zpoints = np.size(self.z)
 
-        self.voltage_error_convergence = kwargs['voltage_error_convergence']
-        self.voltage_iterations = kwargs['voltage_iterations']
+        self.voltage_error_convergence = 1e-1
+        self.voltage_iterations = 100
+        if len(kwargs.keys()) > 0:
+            self.voltage_error_convergence = kwargs['voltage_error_convergence']
+            self.voltage_iterations = kwargs['voltage_iterations']
 
-        self.v = self.v_solve(R, dr, dz, v0, gap_length, cap_length, ring_length, error_convergence=1e-2, num_iterations=100)
+        self.v = self.v_solve(R, dr, dz, v0, gap_length, cap_length, ring_length, error_convergence=self.voltage_error_convergence, num_iterations=self.voltage_iterations)
         self.Er, self.Et, self.Ez = self.e_solve()
   
     def v_solve(self, R, dr, dz, v0, gap_length, cap_length, ring_length, error_convergence=1e-2, num_iterations=100):
@@ -73,7 +76,7 @@ class Efield:
 
         # Solve for the potential using sourceless Poisson eqn
         total_time = 0
-        for iteration in range(self.voltage_iterations):
+        for iteration in range(num_iterations):
             start_time = time.perf_counter()
             v = np.copy(v_last)
             for m in range(1, self.Zpoints-1):
@@ -91,12 +94,12 @@ class Efield:
 
             error = np.abs(v - v_last)
             mean_error = np.mean(error)
-            print(f'Voltage Iteration:{iteration+1}, Mean Error:{mean_error}, Time:{time.perf_counter()-start_time}s')
+            print(f'Voltage Iteration:{iteration+1}, Mean Error:{mean_error:.3f}, Time:{time.perf_counter()-start_time:.3f}s')
             total_time += time.perf_counter() - start_time
-            if mean_error < self.voltage_error_convergence:
+            if mean_error < error_convergence:
                 break
             v_last = np.copy(v)
-        print(f'Total time:{total_time}s')
+        print(f'Total time:{total_time:.3f}s')
         return v
 
     def e_solve(self):
@@ -118,7 +121,7 @@ class Efield:
 
         return Er, Et, Ez
 
-    def e_interp(self, x1, x2, x3, coords='cylindrical'):
+    def e_interp(self, x1, x2, x3, coords='cartesian'):
         '''
         Interpolates the electric field at the inputted points
         coords=cylindrical: r, theta, z
@@ -132,15 +135,15 @@ class Efield:
         m = np.abs(np.floor(x3/self.dz)).astype(int)
 
         # Get the coords of the closest node along r,z
-        rn = n*dr
-        zm = m*dz
+        rn = n*self.dr
+        zm = m*self.dz
 
         # Cell volumes
-        A0 = (rn + dr - r)*(zm + dz - x3)
-        A1 = (r - rn)*(zm + dz - x3)
+        A0 = (rn + self.dr - r)*(zm + self.dz - x3)
+        A1 = (r - rn)*(zm + self.dz - x3)
         A2 = (r - rn)*(x3 - zm)
-        A3 = (rn + dr - r)*(x3 - zm)
-        Atot = dr*dz
+        A3 = (rn + self.dr - r)*(x3 - zm)
+        Atot = self.dr*self.dz
 
         # Linear weights
         w0 = A0/Atot
