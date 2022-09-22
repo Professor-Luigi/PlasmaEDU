@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import os
+import pickle
 import time
 
 
@@ -8,13 +10,12 @@ class Efield:
     '''
     Solves for the electric field/voltage from the edge of one end cap to the edge of the other.
     '''
-    def __init__(self, R, dr, dz, v0, gap_length, cap_length, ring_length, **kwargs):
+    def __init__(self, R, dr, dz, v0, gap_length, cap_length, ring_length, wall_thickness, **kwargs):
         '''
         Accepted kwargs:
         voltage_error_convergence - largest average error between iterations
         voltage_iterations        - maximum number of iterations to solve the voltage "field"
         '''
-
         self.R = R
         self.dr = dr
         self.dz = dz
@@ -23,6 +24,7 @@ class Efield:
         self.gap_length = gap_length
         self.cap_length = cap_length
         self.ring_length = ring_length
+        self.wall_thickness = wall_thickness
 
         self.r = np.arange(0, R, dr)
         self.z = np.arange(0, cap_length*2 + gap_length*2 + ring_length, dz)
@@ -35,10 +37,10 @@ class Efield:
             self.voltage_error_convergence = kwargs['voltage_error_convergence']
             self.voltage_iterations = kwargs['voltage_iterations']
 
-        self.v = self.v_solve(R, dr, dz, v0, gap_length, cap_length, ring_length, error_convergence=self.voltage_error_convergence, num_iterations=self.voltage_iterations)
+        self.v = self.v_solve(R, dr, dz, v0, gap_length, cap_length, ring_length, wall_thickness, error_convergence=self.voltage_error_convergence, num_iterations=self.voltage_iterations)
         self.Er, self.Et, self.Ez = self.e_solve()
-  
-    def v_solve(self, R, dr, dz, v0, gap_length, cap_length, ring_length, error_convergence=1e-2, num_iterations=100):
+
+    def v_solve(self, R, dr, dz, v0, gap_length, cap_length, ring_length, wall_thickness, error_convergence=1e-2, num_iterations=100):
         '''
         Solves for a cylindrically symmetric potential distribution. Specifically a penning trap.
         Origin is placed in the centroid of one of the endcaps
@@ -60,14 +62,24 @@ class Efield:
 
         self.first_cap_index2 = self.last_gap_index2 +1
         self.last_cap_index2 = self.Zpoints-1
+
+        self.first_wall_index = int(self.Rpoints-wall_thickness/dr)
         # Initialize a voltage array
         v_last = np.ones((self.Zpoints, self.Rpoints))*0
 
-        v_last[:self.last_cap_index+1,-1] = v0 # cap voltage
-        v_last[self.first_cap_index2:self.last_cap_index2+1,-1] = v0 # cap voltage
-
-        v_last[self.last_cap_index:self.first_ring_index+1, -1] = np.linspace(v0, 0, self.first_ring_index - self.last_cap_index + 1) # in between 
-        v_last[self.last_ring_index:self.first_cap_index2+1, -1] = np.linspace(0, v0, self.first_cap_index2 - self.last_ring_index + 1) # in between
+        v_last[:self.last_cap_index+1,self.first_wall_index:] = v0 # cap voltage
+        v_last[self.first_cap_index2:self.last_cap_index2+1,self.first_wall_index:] = v0 # cap voltage
+        
+        gap_n = self.first_ring_index - self.last_cap_index + 1
+        wall_n = self.Rpoints - self.first_wall_index
+        gap_n2 = self.first_cap_index2 - self.last_ring_index + 1
+        v_last[self.last_cap_index:self.first_ring_index+1, self.first_wall_index:] = np.linspace(np.ones(wall_n)*v0,
+                                                                                                  np.zeros(wall_n),
+                                                                                                  gap_n) # in between 
+        v_last[self.first_ring_index:self.last_ring_index+1, self.first_wall_index:] = 0 # Grounded ring
+        v_last[self.last_ring_index:self.first_cap_index2+1, self.first_wall_index:] = np.linspace(np.zeros(wall_n),
+                                                                                                   np.ones(wall_n)*v0,
+                                                                                                   gap_n2) # in between
 
         # Constants for the integration
         C = .5*dr*dr*dz*dz/(dr*dr + dz*dz)
@@ -92,6 +104,11 @@ class Efield:
             v[0,:] = v[1,:]
             v[-1,:] = v[-2,:]
 
+            # Reset the inner wall voltages (don't redo the linear decay in the gaps)
+            v[:self.last_cap_index+1,self.first_wall_index:] = v0 # cap voltage
+            v[self.first_cap_index2:self.last_cap_index2+1,self.first_wall_index:] = v0 # cap voltage
+            v[self.first_ring_index:self.last_ring_index+1, self.first_wall_index:] = 0 # Grounded ring
+            
             error = np.abs(v - v_last)
             mean_error = np.mean(error)
             print(f'Voltage Iteration:{iteration+1}, Mean Error:{mean_error:.3f}, Time:{time.perf_counter()-start_time:.3f}s')
@@ -133,6 +150,7 @@ class Efield:
         # Obtain index along r, z coords
         n = np.abs(np.floor(r/self.dr)).astype(int)
         m = np.abs(np.floor(x3/self.dz)).astype(int)
+        print(r, x3, n, m)
 
         # Get the coords of the closest node along r,z
         rn = n*self.dr
@@ -174,28 +192,23 @@ if __name__ == '__main__':
     dr = R/1000 #m
     dz = 1e-4 #m
     v0 = 1e3
-
-    efield = Efield(R, dr, dz, v0, 0.01, 0.02, 0.03, voltage_error_convergence=1e-1, voltage_iterations=100)
+    gap_length = 0.01
+    cap_length = 0.02
+    ring_length = 0.03
+    wall_thickness = 0.001
+    
+    efield = Efield(R, dr, dz, v0, gap_length, cap_length, ring_length, wall_thickness, voltage_error_convergence=1e-1, voltage_iterations=100)
     v = efield.v
     r = efield.r
     z = efield.z
     Er, Et, Ez = efield.Er, efield.Et, efield.Ez
-
-    for z_pos in z[efield.first_gap_index:efield.last_gap_index]:
-        print(efield.e_interp(R*.9, 0, z_pos, coords='cylindrical'))
-    print()
-
-    for z_pos in z[efield.first_gap_index2:efield.last_gap_index2]:
-        print(efield.e_interp(R*.9, 0, z_pos, coords='cylindrical'))
-    print()
-
 
     rmesh, zmesh = np.meshgrid(np.arange(0, efield.Rpoints),
                                np.arange(0, efield.Zpoints))
     # Side view of the trap
     fig, ax = plt.subplots()
     mappable = ax.imshow(v, aspect='auto')
-    ax.streamplot(rmesh, zmesh, Er, Ez, color='k', density=2)
+    ax.streamplot(rmesh, zmesh, Er, Ez, color='k', density=1, broken_streamlines=False)
 
     z_tick_spacing = 1e-2 #m
     z_ticks = np.arange(0, efield.Zpoints, z_tick_spacing//dz + 1).astype(int)
@@ -209,10 +222,10 @@ if __name__ == '__main__':
     ax.set_xticks(r_ticks)
     ax.set_xticklabels(r_ticklabels.round(1))
 
-    ax.axhline(efield.last_cap_index)
-    ax.axhline(efield.first_ring_index)
-    ax.axhline(efield.last_ring_index)
-    ax.axhline(efield.first_cap_index2)
+    ax.axhline(efield.last_cap_index, linewidth=0.5)
+    ax.axhline(efield.first_ring_index, linewidth=0.5)
+    ax.axhline(efield.last_ring_index, linewidth=0.5)
+    ax.axhline(efield.first_cap_index2, linewidth=0.5)
     ax.set_ylabel('z (mm)')
     ax.set_xlabel('Radius (mm)')
     fig.colorbar(mappable)

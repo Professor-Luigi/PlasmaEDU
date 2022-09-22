@@ -99,7 +99,7 @@ class BB:
             X[n+1, 3] = vx
             X[n+1, 4] = vy
             X[n+1, 5] = vz
-
+            print('x', X[:,:3])
         return X
 
     def freq_correction(self, x, corrected=True):

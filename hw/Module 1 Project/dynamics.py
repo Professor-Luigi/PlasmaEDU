@@ -34,7 +34,7 @@ Tc = 2*np.pi/omega_c
 
 # Initial velocity
 vx0 = 0
-vy0 = 1e0
+vy0 = 0 
 vz0 = 0
 
 # Magnitude of v perp
