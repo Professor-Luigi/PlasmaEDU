@@ -106,9 +106,9 @@ def bb_with_vel_push_back(time, X0, params, corrected=False):
 
     return X
 
-def analytic(time, larmor_radius):
+def analytic(time, larmor_radius, wc=1):
     # time is an array of times
-    return larmor_radius*np.cos(time), larmor_radius*np.sin(time) 
+    return larmor_radius*np.cos(wc*time), larmor_radius*np.sin(wc*time) 
 
 def plot_trajectory(xs, ys, labels, title, larmor_radius, linestyles=None, markers=None, colors=None, show=True):
     '''
@@ -130,6 +130,7 @@ def plot_trajectory(xs, ys, labels, title, larmor_radius, linestyles=None, marke
         ax.plot(x/larmor_radius, y/larmor_radius, label=label, ls=ls, marker=marker, color=color)
     ax.legend()
     plt.grid()
+    plt.axis('equal')
     if '\n' in title:
         title = title.replace('\n', ' ')
     fig.savefig(f'{title}.png')
@@ -142,14 +143,17 @@ def plot_errors(time, x, y, title, larmor_radius, show=True):
     ax.set_title(title)
     ax.set_ylabel('Absolute Error [$r_L$]')
     ax.set_xlabel('Larmor Period')
-    ax.plot(time, x/larmor_radius, label='x(t)')
-    ax.plot(time, y/larmor_radius, label='y(t)')
+    ax.plot(time, x/larmor_radius, linewidth=1/2, label='x(t)')
+    ax.plot(time, y/larmor_radius, linewidth=1/2, label='y(t)')
+
     ax.legend()
+    if '\n' in title:
+        title = title.replace('\n', ' ')
     fig.savefig(f'{title}.png')
     if show:
         plt.show()
     plt.close()
-
+    
 def main():
     # Charge [C], mass [kg]
     Q = -qe
@@ -186,7 +190,7 @@ def main():
 
     # Time grid [s]
     Nperiods = 2
-    Nsteps_per_period = 15
+    Nsteps_per_period = 15 
     time = np.linspace(0, Tc*Nperiods, Nperiods*Nsteps_per_period)
     dt = time[1] - time[0]
 
@@ -202,13 +206,33 @@ def main():
     analytic_x, analytic_y = analytic(analytic_time, r_L)
 
     # Calculate the absolute errors
-    analytic_x_sampled, analytic_y_sampled = analytic(time, r_L)
+    analytic_x_sampled, analytic_y_sampled = analytic(time, r_L, wc=omega_c)
 
     err_x_unc = np.abs(analytic_x_sampled - X_uncorrected[:,0])
     err_y_unc = np.abs(analytic_y_sampled - X_uncorrected[:,1])
 
     err_x_cor = np.abs(analytic_x_sampled - X_corrected[:,0])
     err_y_cor = np.abs(analytic_y_sampled - X_corrected[:,1])
+
+    # Do the Boris-Bunemann for 1000 periods
+    # 1000 periods makes the graphs hard to read, so 100 periods are used instead with the old naming convention
+    Nperiods = 100 
+    Nsteps_per_period = 15 
+    time_1000 = np.linspace(0, Tc*Nperiods, Nperiods*Nsteps_per_period)
+    dt_1000 = time_1000[1] - time_1000[0]
+    params_1000 = np.array([dt_1000, Q*dt_1000/(M*2)])
+
+    X_uncorrected_1000 = bb_with_vel_push_back(time_1000, X0, params_1000, corrected=False)
+    X_corrected_1000   = bb_with_vel_push_back(time_1000, X0, params_1000, corrected=True)
+
+    analytic_x_sampled_1000, analytic_y_sampled_1000 = analytic(time_1000, r_L, wc=omega_c)
+
+    err_x_unc_1000 = np.abs(analytic_x_sampled_1000 - X_uncorrected_1000[:,0])
+    err_y_unc_1000 = np.abs(analytic_y_sampled_1000 - X_uncorrected_1000[:,1])
+
+    err_x_cor_1000 = np.abs(analytic_x_sampled_1000 - X_corrected_1000[:,0])
+    err_y_cor_1000 = np.abs(analytic_y_sampled_1000 - X_corrected_1000[:,1])
+
 
     # Plot the analytic vs numerical solution (uncorr and corr in 2 subplots)
     plot_trajectory([analytic_x, X_uncorrected[:,0]],
@@ -245,7 +269,7 @@ def main():
             err_y_unc,
             'Absolute Error without Frequency Correction',
             r_L,
-            show=True)
+            show=False)
 
     plot_errors(time/Tc,
             err_x_cor,
@@ -253,5 +277,21 @@ def main():
             'Absolute Error with Frequency Correction',
             r_L,
             show=False)
+
+    # Plot the absolute errors for 1000 periods
+    plot_errors(time_1000/Tc,
+            err_x_unc_1000,
+            err_y_unc_1000,
+            f'Absolute Error without Frequency Correction\n{Nperiods} Periods',
+            r_L,
+            show=False)
+
+    plot_errors(time_1000/Tc,
+            err_x_cor_1000,
+            err_y_cor_1000,
+            f'Absolute Error with Frequency Correction\n{Nperiods} Periods',
+            r_L,
+            show=False)
+
 if __name__ == '__main__':
     main()
