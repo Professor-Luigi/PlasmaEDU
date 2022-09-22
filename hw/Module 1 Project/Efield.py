@@ -153,7 +153,6 @@ class Efield:
         # Obtain index along r, z coords
         n = np.abs(np.floor(r/self.dr)).astype(int)
         m = np.abs(np.floor(x3/self.dz)).astype(int)
-        print(r, x3, n, m)
 
         # Get the coords of the closest node along r,z
         rn = n*self.dr
