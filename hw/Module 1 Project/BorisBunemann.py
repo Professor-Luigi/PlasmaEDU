@@ -8,15 +8,30 @@ class BB:
     '''
     Does boris-bunemann integration of the lorentz equation. Includes velocity pushback and frequency correction.
     '''
-    def __init__(self, time, X0, q, m, E_fn, B_fn):
+    def __init__(self, time, X0, q, m, E_fn, B_fn, deltas=None, bounds=None, coords='cartesian'):
         '''
         time is an array of times
+
         X0 are the initial parameters in an array [x y z vx vy vz] WITHOUT velocity pushback
+
         q is the particle charge (can be signed)
+
         m is the particle mass
+
         E_fn is a function for the electric field that depends on (x, y, z)
+
         B_fn is the same as E_fn but for the magnetic field
+
+        deltas is an array of grid spacings for the coordinates in the order of bounds. This must be defined if bounds is.
+        dtheta can be given as 0.
+
+        If bounds is a list of bounds [(xmin, xmax),(ymin, ymax),(zmin, zmax)], then the solver will check if the particle goes outside of the given bounds. These can also be cylindrical in r, theta, z. theta must go from -2pi to 2pi based on how the angle is found.
+
+        coords gives the coordinate system of bounds 
         '''
+        self.bounds = bounds
+        self.coords = coords
+        self.deltas = deltas
         # Make the params part of the instance
         self.dt = time[1] - time[0]
         self.n_time_steps = np.size(time)
@@ -43,7 +58,7 @@ class BB:
 
 
     def bb(self, X0, params, corrected=False):
-        # does the boris bunemann integration
+       # does the boris bunemann integration
         # FOR THE FREQUENCY CORRECTION, THE MAGNETIC FIELD IS ASSUMED TO BE ALONG Z
         dt, qmdt2 = params
         M = np.size(X0)
@@ -91,7 +106,30 @@ class BB:
             x += vx*dt
             y += vy*dt
             z += vz*dt
+            
+            # Check that the particle is in bounds if asked for
+            if self.bounds is not None:
+                x1, x2, x3 = x, y, z
+                coords_array = ['x','y','z']
+                if self.coords == 'cylindrical':
+                    x1, x2, x3 = self.convert2cyl(x,y,z)
+                    coords_array = ['r', 'theta', 'z']
+                for i, pos in enumerate([x1,x2,x3]):
+                    correction_factor = 1
+                    if self.coords == 'cylindrical' and i == 0:
+                        correction_factor = 0 # for the case rlim (0, R) the lower bound should stay 0
 
+                    # the deltas add a layer of security
+                    if pos < self.bounds[i][0] + self.deltas[i]*correction_factor or pos > self.bounds[i][1] - self.deltas[i]:
+                        # Freeze the particle at the last point before it leaves the domain
+                        print(f'Particle will escape in the {coords_array[i]} direction, with a value of {pos}.')  
+                        X[n+1:, 0] = X[n,0]
+                        X[n+1:, 1] = X[n,1]
+                        X[n+1:, 2] = X[n,2]
+                        X[n+1:, 3] = X[n,3]
+                        X[n+1:, 4] = X[n,4]
+                        X[n+1:, 5] = X[n,5]
+                        return X
             # Store coords into X
             X[n+1, 0] = x
             X[n+1, 1] = y
@@ -113,4 +151,13 @@ class BB:
         X = self.bb(X0, params, corrected=corrected)
         return np.transpose(X)[3:,1] # this will give [vx vy vz] for the first n-1/2 timestep
 
-
+    def convert2cyl(self, x, y, z):
+        # x, y, z are floats
+        r = np.linalg.norm(np.array([x,y]))
+        if x == 0 and y != 0:
+            theta = np.pi/2
+        elif x == 0 and y == 0:
+            theta = 0
+        else:
+            theta = np.arctan(y/x)
+        return r, theta, z    
