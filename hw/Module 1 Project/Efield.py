@@ -31,11 +31,14 @@ class Efield:
         self.Rpoints = np.size(self.r)
         self.Zpoints = np.size(self.z)
 
-        self.voltage_error_convergence = 1e-1
-        self.voltage_iterations = 100
-        if len(kwargs.keys()) > 0:
+        try:
             self.voltage_error_convergence = kwargs['voltage_error_convergence']
+        except KeyError:
+            self.voltage_error_convergence = 1e-1
+        try:
             self.voltage_iterations = kwargs['voltage_iterations']
+        except KeyError:
+            self.voltage_iterations = 100
 
         self.v = self.v_solve(R, dr, dz, v0, gap_length, cap_length, ring_length, wall_thickness, error_convergence=self.voltage_error_convergence, num_iterations=self.voltage_iterations)
         self.Er, self.Et, self.Ez = self.e_solve()
@@ -183,7 +186,17 @@ class Efield:
         # Finalize the interpolated Efield
         Ex1, Ex2, Ex3 = Er, 0, Ez
         if coords != 'cylindrical':
-            Ex1, Ex2, Ex3 = Er*np.cos(np.arctan(x2/x1)), Er*np.sin(np.arctan(x2/x1)), Ez
+            Ex3 = Ez
+            if x1 == 0 and x2 != 0:
+                # Works for both pos and neg y axis
+                theta = x2/np.abs(x2)*np.pi/2    
+            elif x1 == 0 and x2 == 0:
+                Er = 0 # true for the penning trap case
+                theta = 0 # not technically true but avoids the 1/0 problem
+            else:
+                theta = np.arctan(x2/x1)
+
+            Ex1, Ex2 = Er*np.cos(theta), Er*np.sin(theta) 
 
         return Ex1, Ex2, Ex3
 
