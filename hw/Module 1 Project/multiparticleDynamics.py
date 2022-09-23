@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib import patches
 import matplotlib.pyplot as plt
 import os
 import scipy.stats as ss
@@ -111,7 +112,26 @@ try:
 except:
     for i in range(Nparticles):
         ax.plot(X[i][:,0], X[i][:,1], label=i)
-ax.set_xlabel('x')
-ax.set_ylabel('y')
+ax.plot(R*np.cos(np.linspace(0,2*np.pi,100)), R*np.sin(np.linspace(0,2*np.pi,100)), color='k')
+ax.set_xlabel('x (m)')
+ax.set_ylabel('y (m)')
+ax.set_title('XY plane trajectory of 20 positrons')
 ax.legend()
+fig.savefig('XY.png')
+
+# z vs t of trap
+fig, ax = plt.subplots()
+try:
+    for i in range(Nparticles):
+        ax.plot(time, bb[i].X_nc[:,2], label=i)
+except:
+    for i in range(Nparticles):
+        ax.plot(time, X[i][:,2], label=i)
+ax.axhline(0, color='k')
+ax.axhline(trap_length, color='k')
+ax.set_xlabel('time (s)')
+ax.set_ylabel('z (m)')
+ax.legend()
+ax.set_title('z vs time trajectory of 20 positrons')
+fig.savefig('zt.png')
 plt.show()
