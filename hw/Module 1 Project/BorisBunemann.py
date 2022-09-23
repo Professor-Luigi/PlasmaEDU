@@ -10,7 +10,7 @@ class BB:
     '''
     Does boris-bunemann integration of the lorentz equation. Includes velocity pushback and frequency correction.
     '''
-    def __init__(self, time, X0, q, m, E_fn, B_fn, deltas=None, bounds=None, coords='cartesian'):
+    def __init__(self, time, X0, q, m, E_fn, B_fn, deltas=None, bounds=None, coords='cartesian', path=None, save_X_data=True):
         '''
         time is an array of times
 
@@ -30,10 +30,16 @@ class BB:
         If bounds is a list of bounds [(xmin, xmax),(ymin, ymax),(zmin, zmax)], then the solver will check if the particle goes outside of the given bounds. These can also be cylindrical in r, theta, z. theta must go from -2pi to 2pi based on how the angle is found.
 
         coords gives the coordinate system of bounds 
+
+        path | The path of the file running the BB integrator.
         '''
         self.bounds = bounds
         self.coords = coords
         self.deltas = deltas
+        if path is not None:
+            self.path = path
+        else:
+            self.path = __file__
         # Make the params part of the instance
         self.dt = time[1] - time[0]
         self.n_time_steps = np.size(time)
@@ -45,11 +51,12 @@ class BB:
         self.B_fn = B_fn
 
         # Check to see if the X's are saved already
-        filename = __file__.split('\\')[-1].split('.')[0]
+        filename = path.split('\\')[-1].split('.')[0]
         if f'X corrected-srcFile_{filename}.npy' in os.listdir():
             self.loadX()
         else:
             # Get the corrected initial velocities without frequency correction
+            print('Solving velocity push backs...')
             v0_pushed_back_nc = self.velocity_push_back(X0, -.5*params, corrected=False)
             X0_pushed_back_nc = np.array([X0[0],                X0[1],                X0[2],
                                           v0_pushed_back_nc[0], v0_pushed_back_nc[1], v0_pushed_back_nc[2]])
@@ -66,7 +73,8 @@ class BB:
             self.X_c = self.bb(X0_pushed_back_c, params, corrected=True)
 
             # Save the X_c and X_nc
-            self.saveX()
+            if save_X_data:
+                self.saveX()
 
     def bb(self, X0, params, corrected=False):
        # does the boris bunemann integration
@@ -174,14 +182,14 @@ class BB:
         return r, theta, z    
 
     def saveX(self):
-        filename = __file__.split('\\')[-1].split('.')[0]
+        filename = self.path.split('\\')[-1].split('.')[0]
         with open(f'X corrected-srcFile_{filename}.npy', 'wb') as f:
             np.save(f, self.X_c)
         with open(f'X uncorrected-srcFile_{filename}.npy', 'wb') as f:
             np.save(f, self.X_nc)
 
     def loadX(self):
-        filename = __file__.split('\\')[-1].split('.')[0]
+        filename = self.path.split('\\')[-1].split('.')[0]
         with open(f'X corrected-srcFile_{filename}.npy', 'rb') as f:
             self.X_c = np.load(f)
         with open(f'X uncorrected-srcFile_{filename}.npy', 'rb') as f:
