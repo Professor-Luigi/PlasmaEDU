@@ -129,8 +129,8 @@ class Efield:
         # Solve for the electric field
         for m in range(self.Zpoints-2, 0, -1):
             for n in range(1, self.Rpoints-1):
-                Er[m,n] = (self.v[m, n+1] - self.v[m, n-1])/(-2*self.dr)     
-                Ez[m,n] = (self.v[m+1, n] - self.v[m-1, n])/(-2*self.dz)
+                Er[m,n] = (self.v[m, n+1] - self.v[m, n])/(-self.dr)     
+                Ez[m,n] = (self.v[m+1, n] - self.v[m, n])/(-self.dz)
 
         # Set the outermost points
         for E in (Er, Et, Ez):
