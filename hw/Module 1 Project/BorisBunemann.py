@@ -3,6 +3,8 @@ Application of the Boris-Bunemann solver for the Newton-Lorentz equation.
 Class implementation
 '''
 import numpy as np
+import os
+from tqdm import tqdm
 
 class BB:
     '''
@@ -42,20 +44,28 @@ class BB:
         self.E_fn = E_fn
         self.B_fn = B_fn
 
-        # Get the corrected initial velocities without frequency correction
-        v0_pushed_back_nc = self.velocity_push_back(X0, -.5*params, corrected=False)
-        X0_pushed_back_nc = np.array([X0[0],                X0[1],                X0[2],
-                                      v0_pushed_back_nc[0], v0_pushed_back_nc[1], v0_pushed_back_nc[2]])
+        # Check to see if the X's are saved already
+        filename = __file__.split('\\')[-1].split('.')[0]
+        print(filename)
+        if f'X corrected-srcFile_{filename}.npy' in os.listdir():
+            self.loadX()
+        else:
+            # Get the corrected initial velocities without frequency correction
+            v0_pushed_back_nc = self.velocity_push_back(X0, -.5*params, corrected=False)
+            X0_pushed_back_nc = np.array([X0[0],                X0[1],                X0[2],
+                                          v0_pushed_back_nc[0], v0_pushed_back_nc[1], v0_pushed_back_nc[2]])
 
-        # Get the corrected initial velocities with frequency correction
-        v0_pushed_back_c = self.velocity_push_back(X0, -.5*params, corrected=True)
-        X0_pushed_back_c = np.array([X0[0],               X0[1],               X0[2],
-                                     v0_pushed_back_c[0], v0_pushed_back_c[1], v0_pushed_back_c[2]])
+            # Get the corrected initial velocities with frequency correction
+            v0_pushed_back_c = self.velocity_push_back(X0, -.5*params, corrected=True)
+            X0_pushed_back_c = np.array([X0[0],               X0[1],               X0[2],
+                                         v0_pushed_back_c[0], v0_pushed_back_c[1], v0_pushed_back_c[2]])
 
-        # Do the BB integration
-        self.X_nc = self.bb(X0_pushed_back_nc, params, corrected=False)
-        self.X_c = self.bb(X0_pushed_back_c, params, corrected=True)
+            # Do the BB integration
+            self.X_nc = self.bb(X0_pushed_back_nc, params, corrected=False)
+            self.X_c = self.bb(X0_pushed_back_c, params, corrected=True)
 
+            # Save the X_c and X_nc
+            self.saveX()
 
     def bb(self, X0, params, corrected=False):
        # does the boris bunemann integration
@@ -70,7 +80,7 @@ class BB:
         vx = X[0,3] 
         vy = X[0,4]
         vz = X[0,5] 
-        for n in range(self.n_time_steps-1):
+        for n in tqdm(range(self.n_time_steps-1), desc='BB Time Step'):
             Ex, Ey, Ez = self.E_fn(x,y,z)
             Bx, By, Bz = self.B_fn(x,y,z)
             alpha_x = self.freq_correction(qmdt2*Bx, corrected=corrected)
@@ -161,3 +171,18 @@ class BB:
         else:
             theta = np.arctan(y/x)
         return r, theta, z    
+
+    def saveX(self):
+        filename = __file__.split('\\')[-1].split('.')[0]
+        with open(f'X corrected-srcFile_{filename}.npy', 'wb') as f:
+            np.save(f, self.X_c)
+        with open(f'X uncorrected-srcFile_{filename}.npy', 'wb') as f:
+            np.save(f, self.X_nc)
+
+    def loadX(self):
+        filename = __file__.split('\\')[-1].split('.')[0]
+        with open(f'X corrected-srcFile_{filename}.npy', 'rb') as f:
+            self.X_c = np.load(f)
+        with open(f'X uncorrected-srcFile_{filename}.npy', 'rb') as f:
+            self.X_nc = np.load(f) 
+
