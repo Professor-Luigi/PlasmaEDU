@@ -46,7 +46,6 @@ class BB:
 
         # Check to see if the X's are saved already
         filename = __file__.split('\\')[-1].split('.')[0]
-        print(filename)
         if f'X corrected-srcFile_{filename}.npy' in os.listdir():
             self.loadX()
         else:
@@ -61,7 +60,9 @@ class BB:
                                          v0_pushed_back_c[0], v0_pushed_back_c[1], v0_pushed_back_c[2]])
 
             # Do the BB integration
+            print('Solving with the uncorrected Boris-Bunemann...')
             self.X_nc = self.bb(X0_pushed_back_nc, params, corrected=False)
+            print('Solving with the corrected Boris-Bunemann...')
             self.X_c = self.bb(X0_pushed_back_c, params, corrected=True)
 
             # Save the X_c and X_nc
