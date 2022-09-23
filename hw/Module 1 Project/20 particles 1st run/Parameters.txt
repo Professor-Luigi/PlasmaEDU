@@ -1,0 +1,21 @@
+R = 0.01
+dr = R/100
+dz = 1e-4
+wall voltage = 1000
+gap_length = 0.001
+cap_length = 0.02
+ring_length = 0.04
+wall_thickness = 0.005
+
+Nparticles = 20
+
+q = 1.6e-19
+m = 9.11e-31
+
+Particles initialized in the region r 0 to R/2 and z inside ring
+Velocities were of maxwellian dist in each direction and temp of 300K
+
+Bz = 0.5T
+
+500 cyclotron periods or until particle escapes.
+50 points per period
