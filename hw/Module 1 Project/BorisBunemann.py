@@ -52,7 +52,7 @@ class BB:
 
         # Check to see if the X's are saved already
         filename = path.split('\\')[-1].split('.')[0]
-        if f'X corrected-srcFile_{filename}.npy' in os.listdir():
+        if f'X corrected-srcFile_{filename}.npy' in os.listdir() and save_X_data:
             self.loadX()
         else:
             # Get the corrected initial velocities without frequency correction
@@ -76,7 +76,7 @@ class BB:
             if save_X_data:
                 self.saveX()
 
-    def bb(self, X0, params, corrected=False):
+    def bb(self, X0, params, corrected=False, checkBounds=True, vpb_n_time_steps=0):
        # does the boris bunemann integration
         # FOR THE FREQUENCY CORRECTION, THE MAGNETIC FIELD IS ASSUMED TO BE ALONG Z
         dt, qmdt2 = params
@@ -89,7 +89,11 @@ class BB:
         vx = X[0,3] 
         vy = X[0,4]
         vz = X[0,5] 
-        for n in tqdm(range(self.n_time_steps-1), desc='BB Time Step'):
+        if vpb_n_time_steps == 0:
+            n_time_steps = self.n_time_steps
+        else:
+            n_time_steps = vpb_n_time_steps
+        for n in tqdm(range(n_time_steps-1), desc='BB Time Step'):
             Ex, Ey, Ez = self.E_fn(x,y,z)
             Bx, By, Bz = self.B_fn(x,y,z)
             alpha_x = self.freq_correction(qmdt2*Bx, corrected=corrected)
@@ -127,7 +131,7 @@ class BB:
             z += vz*dt
             
             # Check that the particle is in bounds if asked for
-            if self.bounds is not None:
+            if self.bounds is not None and checkBounds:
                 x1, x2, x3 = x, y, z
                 coords_array = ['x','y','z']
                 if self.coords == 'cylindrical':
@@ -166,8 +170,7 @@ class BB:
         return alpha
 
     def velocity_push_back(self, X0, params, corrected=False):
-        time = np.zeros(2) # will get the for loop in bb to run once
-        X = self.bb(X0, params, corrected=corrected)
+        X = self.bb(X0, params, corrected=corrected, checkBounds=False, vpb_n_time_steps=2) # time steps will get the for loop in bb to run once
         return np.transpose(X)[3:,1] # this will give [vx vy vz] for the first n-1/2 timestep
 
     def convert2cyl(self, x, y, z):
