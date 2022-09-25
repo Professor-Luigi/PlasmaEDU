@@ -240,7 +240,8 @@ if __name__ == '__main__':
     ax.axhline(efield.first_cap_index2, linewidth=0.5)
     ax.set_ylabel('z (mm)')
     ax.set_xlabel('Radius (mm)')
-    fig.colorbar(mappable)
+    ax.set_title('Side view of the potential and electric field distribution')
+    fig.colorbar(mappable, label='V')
     fig.savefig('Side View.png')
     plt.show()
 
