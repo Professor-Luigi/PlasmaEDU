@@ -32,6 +32,8 @@ class BB:
         coords gives the coordinate system of bounds 
 
         path | The path of the file running the BB integrator.
+
+        save_X_data | If true, then loads the saved X data otherwise just reruns the BB integrator.
         '''
         self.bounds = bounds
         self.coords = coords
