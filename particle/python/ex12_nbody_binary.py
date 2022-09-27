@@ -84,7 +84,7 @@ def main():
     Y0 = np.concatenate( ( Rx, Ry, Rz, Vx, Vy, Vz ) )
 
     # Time grid
-    tspan = np.linspace(0.0, tb*2, 34)
+    tspan = np.linspace(0.0, tb*4, 34)
 
     # Solve ODE
     Y = ode.rk4(dynamics, tspan, Y0)
