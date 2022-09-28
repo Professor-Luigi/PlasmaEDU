@@ -194,8 +194,10 @@ class Efield:
                 theta = 0 # not technically true but avoids the 1/0 problem
             else:
                 theta = np.arctan(x2/x1)
-
-            Ex1, Ex2 = Er*np.cos(theta), Er*np.sin(theta) 
+                if x1 < 0:
+                    Ex1, Ex2 = Er*np.cos(theta), Er*np.sin(theta) 
+                else:
+                    Ex1, Ex2 = Er*np.cos(theta), Er*np.sin(theta) 
 
         return Ex1, Ex2, Ex3
 
