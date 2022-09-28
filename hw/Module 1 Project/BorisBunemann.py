@@ -10,30 +10,34 @@ class BB:
     '''
     Does boris-bunemann integration of the lorentz equation. Includes velocity pushback and frequency correction.
     '''
-    def __init__(self, time, X0, q, m, E_fn, B_fn, deltas=None, bounds=None, coords='cartesian', path=None, save_X_data=True):
+    def __init__(self, time, X0, q, m, E_fn, B_fn, deltas=None, bounds=None, coords='cartesian', path=None, load_X_data=True, save_X_data=True):
         '''
-        time is an array of times
+        time | An array of times
 
-        X0 are the initial parameters in an array [x y z vx vy vz] WITHOUT velocity pushback
+        X0 | The initial parameters in an array [x y z vx vy vz] WITHOUT velocity pushback
 
-        q is the particle charge (can be signed)
+        q | The particle charge (can be signed)
 
-        m is the particle mass
+        m | The particle mass
 
-        E_fn is a function for the electric field that depends on (x, y, z)
+        E_fn | The function object for the electric field that depends on (x, y, z)
 
-        B_fn is the same as E_fn but for the magnetic field
+        B_fn | The same as E_fn but for the magnetic field
 
-        deltas is an array of grid spacings for the coordinates in the order of bounds. This must be defined if bounds is.
-        dtheta can be given as 0.
+        deltas | An array of grid spacings for the coordinates in the order of bounds. This must be defined if bounds is.
+               | dtheta can be given as 0.
 
-        If bounds is a list of bounds [(xmin, xmax),(ymin, ymax),(zmin, zmax)], then the solver will check if the particle goes outside of the given bounds. These can also be cylindrical in r, theta, z. theta must go from -2pi to 2pi based on how the angle is found.
+        bounds | If bounds is a list of bounds [(xmin, xmax),(ymin, ymax),(zmin, zmax)], then the solver will check if the particle goes outside of the given bounds.
+               | These can also be cylindrical in r, theta, z.
+               | theta must go from -2pi to 2pi based on how the angle is found.
 
-        coords gives the coordinate system of bounds 
+        coords | Gives the coordinate system of bounds 
 
         path | The path of the file running the BB integrator.
 
-        save_X_data | If true, then loads the saved X data otherwise just reruns the BB integrator.
+        load_X_data | If true, then loads the saved X data otherwise just reruns the BB integrator.
+
+        save_X_data | If true, then saves the X data.
         '''
         self.bounds = bounds
         self.coords = coords
@@ -54,7 +58,7 @@ class BB:
 
         # Check to see if the X's are saved already
         filename = path.split('\\')[-1].split('.')[0]
-        if f'X corrected-srcFile_{filename}.npy' in os.listdir() and save_X_data:
+        if f'X corrected-srcFile_{filename}.npy' in os.listdir() and load_X_data:
             self.loadX()
         else:
             # Get the corrected initial velocities without frequency correction
