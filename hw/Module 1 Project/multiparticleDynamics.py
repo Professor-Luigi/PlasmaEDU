@@ -134,7 +134,8 @@ for i in range(Nparticles):
                                  (-2*np.pi, 2*np.pi), (0, trap_length)],
                          coords='cylindrical',
                          path=__file__, 
-                         save_X_data=False)
+                         save_X_data=True,
+                         load_X_data=True)
         bb.append(BB_instance)
         saveX(BB_instance.X_c, BB_instance.X_nc, __file__, i)
     else:
