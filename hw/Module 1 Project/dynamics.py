@@ -9,6 +9,10 @@ from BorisBunemann import BB
 #------------------------------------------------------------------------------
 # Inputs
 
+# Save/load Boris-Bunemann X data
+save_bb = True
+load_bb = False
+
 # Particle characteristics
 q = 1.6e-19 #C
 m = 9.11e-31
@@ -82,8 +86,8 @@ bb = BB(time, X0, q, m, efield.e_interp, Bfield,
         bounds=[(0,R-wall_thickness), (-2*np.pi,2*np.pi), (0,trap_length)],
         coords='cylindrical',
         deltas=[dr, 0, dz],
-        save_X_data=True,
-        load_X_data=True,
+        save_X_data=save_bb,
+        load_X_data=load_bb,
         path=__file__)
 X_nc = bb.X_nc
 #------------------------------------------------------------------------------
