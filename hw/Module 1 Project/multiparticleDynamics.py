@@ -7,6 +7,8 @@ import scipy.stats as ss
 from Efield import Efield
 from BorisBunemann import BB
 
+#------------------------------------------------------------------------------
+# Functions
 def saveX(X_c, X_nc, path, particle_num):
     filename = path.split('\\')[-1].split('.')[0]
     with open(f'multiparticleDynamics_X/X corrected-srcFile_{filename}-particle_{particle_num}.npy', 'wb') as f:
@@ -46,6 +48,17 @@ def didEscape(X, dt):
             break
     return escaped, escape_params 
 
+def Maxwell(Nparticles, T, m):
+    # Maxwell Dist returns a vx, vy, vz for Nparticles
+    a = np.sqrt(1.38e-23*T/m)
+    return ss.norm.rvs(size=Nparticles, scale=a), ss.norm.rvs(size=Nparticles, scale=a), ss.norm.rvs(size=Nparticles, scale=a)
+#------------------------------------------------------------------------------
+# Inputs
+
+# Charge parameters for positrons/electron beam
+q = -1.6e-19
+m = 9.11e-31
+
 # Trap dimensions
 R = 0.01
 dr = R/100
@@ -60,26 +73,25 @@ trap_length = 2*gap_length + 2*cap_length + ring_length
 # Number of particles
 Nparticles = 20
 
-# Charge parameters for positrons/electron beam
-q = -1.6e-19
-m = 9.11e-31
-
-# Maxwell Dist returns a vx, vy, vz for Nparticles
-def Maxwell(Nparticles, T, m):
-    a = np.sqrt(1.38e-23*T/m)
-    return ss.norm.rvs(size=Nparticles, scale=a), ss.norm.rvs(size=Nparticles, scale=a), ss.norm.rvs(size=Nparticles, scale=a)
-
-v_th = np.sqrt(2*1.38e-23*300/m)
-v_beam = np.sqrt(2*1.6e-19*(1000)/m) # velocity of beam electrons
-beam_angles = np.linspace(0, np.pi/2, Nparticles)
-
 # Set the initial positions of the particles rows are each particle, columns are x,y,z,vx,vy,vz
-# Particles start somewhere in the ring up to R/2 m away from the center
 X0s = np.zeros((Nparticles, 6))
 X0s[:,0], X0s[:,1], X0s[:,2] = np.ones(Nparticles)*0, np.ones(Nparticles)*0, np.ones(Nparticles)*dz*10 
 
+# Thermal velocity
+v_th = np.sqrt(2*1.38e-23*300/m)
+
+# Beam characteristics
+v_beam = np.sqrt(2*1.6e-19*(1000)/m) # velocity of beam electrons
+beam_angles = np.linspace(0, np.pi/2, Nparticles)
+
 # Set the initial velocities for the Nparticles
 X0s[:,3], X0s[:,4], X0s[:,5] = np.zeros(Nparticles), v_beam*np.sin(beam_angles), v_beam*np.cos(beam_angles)#np.linspace(0, v_th*7, Nparticles)#Maxwell(Nparticles, 300, m) 
+
+# Time grid inputs
+Nperiods = 5000
+Nsteps_per_period = 10
+#------------------------------------------------------------------------------
+# Fields
 
 # Efield
 efield = Efield(R, dr, dz, wall_voltage, gap_length, cap_length, ring_length, wall_thickness, voltage_error_convergence=5e-1)
@@ -90,14 +102,19 @@ def Bfield(x,y,z):
     Bx, By, Bz = 0,0,B0
     return Bx, By, Bz
 Bmag = np.linalg.norm(Bfield(0,0,0))
+#------------------------------------------------------------------------------
+# Particle motion constants
 
 # Cyclotron
 omega_c = np.abs(q)*Bmag/m
 Tc = 2*np.pi/omega_c
+#------------------------------------------------------------------------------
+# Simulation
+
+# Initial position array is X0s
+# Rows are each particle, columns are x,y,z,vx,vy,vz
 
 # Time grid
-Nperiods = 5000
-Nsteps_per_period = 10
 time = np.linspace(0, Tc*Nperiods, Nperiods*Nsteps_per_period)
 dt = time[1] - time[0]
 
@@ -128,10 +145,13 @@ for i in range(Nparticles):
             escaped_params.append(single_escaped_params)
         else:
             escaped_params.append((None,None))
-#print(escaped_bool, escaped_params)
+#------------------------------------------------------------------------------
+# Plotting
+
 linestyles = ['-', 'dashed', 'dotted', 'dashdot']
-# xy of trap 
 figsize=(14,7)
+
+# xy of trap 
 fig, ax = plt.subplots(figsize=figsize)
 try:
     for i in range(Nparticles):
