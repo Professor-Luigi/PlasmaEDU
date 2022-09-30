@@ -40,7 +40,7 @@ vy0 = -1.02e5 #m/s
 vz0 = 5.5e4 #m/s
 
 # Time grid inputs
-Nperiods = 5000
+Nperiods = 182
 Nsteps_per_period = 50
 #------------------------------------------------------------------------------
 # Fields
