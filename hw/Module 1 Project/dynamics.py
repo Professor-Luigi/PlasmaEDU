@@ -80,7 +80,7 @@ X0 = np.array([x0, y0, z0, vx0, vy0, vz0])
 # Time grid
 time = np.linspace(0, Tc*Nperiods, Nperiods*Nsteps_per_period)
 dt = time[1] - time[0]
-
+print('larmor period', Tc, 'exb period', Tc*Nperiods)
 # Boris Bunemann
 bb = BB(time, X0, q, m, efield.e_interp, Bfield,
         bounds=[(0,R-wall_thickness), (-2*np.pi,2*np.pi), (0,trap_length)],

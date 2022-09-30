@@ -236,9 +236,135 @@ except:
         y_min = X[i][:,1].min()
         beam_amplitudes.append(y_max - y_min)
 
+print(beam_angles*180/np.pi, np.array(beam_amplitudes)*100)
 ax.plot(beam_angles*180/np.pi, np.array(beam_amplitudes)*100)
 ax.set_xlabel('Azimuthal angle ('+'\u00B0'+')')
 ax.set_ylabel('Beam amplitude (cm)')
 ax.set_title('Beam amplitude vs beam angle')
 fig.savefig('beam amplitudes.png')
-plt.show()
+#plt.show()
+
+# Plot the beam angles and energies on one plot
+_1eV_amplitudes = [0.,
+                  0.00011684,
+                  0.00023288,
+                  0.00034733,
+                  0.0004594 ,
+                  0.00056834,
+                  0.0006734,
+                  0.00077386,
+                  0.00086903,
+                  0.00095826,
+                  0.00104095,
+                  0.00111652,
+                  0.00118447,
+                  0.00124433,
+                  0.00129569,
+                  0.0013382,
+                  0.00137157,
+                  0.00139556,
+                  0.00141003,
+                  0.00141486
+                  ]
+
+_5eV_amplitudes = [0.,
+                  0.00026126,
+                  0.00052073,
+                  0.00077665,
+                  0.00102726,
+                  0.00127085,
+                  0.00150577,
+                  0.00173039,
+                  0.0019432,
+                  0.00214273,
+                  0.00232763,
+                  0.00249662,
+                  0.00264856,
+                  0.00278241,
+                  0.00289726,
+                  0.00299231,
+                  0.00306692,
+                  0.00312058,
+                  0.00315292,
+                  0.00316373
+                  ]
+
+_10eV_amplitudes = [0.,
+                   0.00036948,
+                   0.00073643,
+                   0.00109835,
+                   0.00145276,
+                   0.00179726,
+                   0.00212948,
+                   0.00244715,
+                   0.0027481,
+                   0.00303028,
+                   0.00329176,
+                   0.00353076,
+                   0.00374564,
+                   0.00393493,
+                   0.00409734,
+                   0.00423176,
+                   0.00433727,
+                   0.00441316,
+                   0.0044589,
+                   0.00447418
+                   ]
+ 
+_100eV_amplitudes = [0.,
+                    0.00116838,
+                    0.00232878,
+                    0.00347328,
+                    0.00459404,
+                    0.00568343,
+                    0.00673399,
+                    0.00773855,
+                    0.00869025,
+                    0.00958259,
+                    0.01040947,
+                    0.01116524,
+                    0.01184474,
+                    0.01244333,
+                    0.01295692,
+                    0.013382,
+                    0.01371566,
+                    0.01395564,
+                    0.01410028,
+                    0.01414861
+                    ]
+
+_1000eV_amplitudes = [0.,
+                     0.00369474,
+                     0.00736425,
+                     0.01098345,
+                     0.01452762,
+                     0.01797255,
+                     0.02129471,
+                     0.02447141,
+                     0.02748094,
+                     0.03030275,
+                     0.0329176,
+                     0.03530756,
+                     0.03745633,
+                     0.03934923,
+                     0.04097334,
+                     0.04231756,
+                     0.04337274,
+                     0.04413161,
+                     0.04458901,
+                     0.04474183
+                     ]
+
+fig, ax = plt.subplots(figsize=figsize)
+ax.plot(beam_angles*180/np.pi, np.array(_1eV_amplitudes)*100, label='1eV')
+ax.plot(beam_angles*180/np.pi, np.array(_5eV_amplitudes)*100, label='5eV')
+ax.plot(beam_angles*180/np.pi, np.array(_10eV_amplitudes)*100, label='10eV')
+ax.plot(beam_angles*180/np.pi, np.array(_100eV_amplitudes)*100, label='100eV')
+ax.plot(beam_angles*180/np.pi, np.array(_1000eV_amplitudes)*100, label='1000eV')
+ax.legend()
+ax.set_xlabel('Beam Angle (' + '\u00B0' + ')')
+ax.set_ylabel('Beam Amplitude (cm)')
+ax.set_title('Beam Amplitude as a function of incident angle and energy')
+ax.set_yscale('log')
+fig.savefig('All Beam Amplitudes.png')
+
