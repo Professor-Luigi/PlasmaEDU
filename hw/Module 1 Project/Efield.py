@@ -195,9 +195,10 @@ class Efield:
             else:
                 theta = np.arctan(x2/x1)
                 if x1 < 0:
-                    Ex1, Ex2 = Er*np.cos(theta), Er*np.sin(theta) 
-                else:
-                    Ex1, Ex2 = Er*np.cos(theta), Er*np.sin(theta) 
+                    # arctan gives angles in quadrants 1 and 4, so the angles will be off by pi
+                    theta += np.pi 
+
+            Ex1, Ex2 = Er*np.cos(theta), Er*np.sin(theta) 
 
         return Ex1, Ex2, Ex3
 
